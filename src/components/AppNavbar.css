@@ -1,0 +1,21 @@
+.cart-count {
+  background-color: #0d6efd;
+  color: white;
+  padding: 0.1rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+
+.navbar {
+  z-index: 1000;
+}
+
+.nav-link {
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #0d6efd;
+}
