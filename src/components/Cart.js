@@ -1,40 +1,46 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Table, Button, Image } from "react-bootstrap";
-import { removeItemFromCart } from "../store/slices/cart-slice";
+import {
+  removeItemFromCart,
+  increaseQuantity,
+  decreaseQuantity,
+  clearCart,
+} from "../store/slices/cart-slice";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css'; 
+import "react-toastify/dist/ReactToastify.css";
 import "./Cart.css";
 
 function Cart() {
   const items = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
 
-  const groupedItems = items.reduce((acc, item) => {
-    if (acc[item.id]) {
-      acc[item.id].quantity += 1;
-    } else {
-      acc[item.id] = { ...item, quantity: 1 };
-    }
-    return acc;
-  }, {});
-
-  const groupedItemsArray = Object.values(groupedItems);
-
-  const totalPrice = groupedItemsArray.reduce(
+  const totalPrice = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-
 
   const handleDelete = (id) => {
     dispatch(removeItemFromCart(id));
     toast.success("Item removed from cart!");
   };
 
+  const handleClearCart = () => {
+    dispatch(clearCart());
+    toast.info("Cart cleared!");
+  };
+
+  const handleIncrease = (item) => {
+    dispatch(increaseQuantity(item));
+  };
+
+  const handleDecrease = (item) => {
+    dispatch(decreaseQuantity(item.id));
+  };
+
   return (
     <Container className="mt-5 pt-4">
       <h2 className="mb-4">Your Cart</h2>
-      {groupedItemsArray.length === 0 ? (
+      {items.length === 0 ? (
         <p className="text-muted">No items in cart.</p>
       ) : (
         <>
@@ -57,7 +63,7 @@ function Cart() {
               </tr>
             </thead>
             <tbody>
-              {groupedItemsArray.map((item, index) => (
+              {items.map((item, index) => (
                 <tr
                   key={item.id}
                   className="table-row"
@@ -73,7 +79,26 @@ function Cart() {
                   </td>
                   <td>{item.title}</td>
                   <td>{item.price} $</td>
-                  <td>{item.quantity}</td>
+                  <td>
+                    <div className="d-flex align-items-center gap-2">
+                      <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        onClick={() => handleDecrease(item)}
+                        disabled={item.quantity <= 1}
+                      >
+                        -
+                      </Button>
+                      <span>{item.quantity}</span>
+                      <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        onClick={() => handleIncrease(item)}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </td>
                   <td>{(item.price * item.quantity).toFixed(2)} $</td>
                   <td>
                     <Button
@@ -96,13 +121,25 @@ function Cart() {
                 * Total price is before taxes and shipping fees.
               </p>
             </div>
-            <Button variant="success" size="lg" style={{ minWidth: "150px" }}>
-              Checkout
-            </Button>
+            <div className="d-flex gap-3">
+              <Button
+                variant="outline-danger"
+                size="lg"
+                onClick={handleClearCart}
+              >
+                Clear All
+              </Button>
+              <Button variant="success" size="lg" style={{ minWidth: "150px" }}>
+                Checkout
+              </Button>
+            </div>
           </div>
 
-         
-          <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+          />
         </>
       )}
     </Container>
