@@ -1,6 +1,9 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Table, Button, Image } from "react-bootstrap";
 import { removeItemFromCart } from "../store/slices/cart-slice";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'; 
+import "./Cart.css";
 
 function Cart() {
   const items = useSelector((state) => state.cart.items);
@@ -21,6 +24,12 @@ function Cart() {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+
+  const handleDelete = (id) => {
+    dispatch(removeItemFromCart(id));
+    toast.success("Item removed from cart!");
+  };
 
   return (
     <Container className="mt-5 pt-4">
@@ -43,6 +52,7 @@ function Cart() {
                 <th>Title</th>
                 <th>Price</th>
                 <th>Quantity</th>
+                <th>Subtotal</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -50,13 +60,8 @@ function Cart() {
               {groupedItemsArray.map((item, index) => (
                 <tr
                   key={item.id}
-                  style={{
-                    transition: "background-color 0.3s ease",
-                    animation: `fadeInUp 0.3s ease forwards`,
-                    animationDelay: `${index * 0.1}s`,
-                    opacity: 0,
-                  }}
                   className="table-row"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <td style={{ width: "80px" }}>
                     <Image
@@ -69,11 +74,12 @@ function Cart() {
                   <td>{item.title}</td>
                   <td>{item.price} $</td>
                   <td>{item.quantity}</td>
+                  <td>{(item.price * item.quantity).toFixed(2)} $</td>
                   <td>
                     <Button
                       variant="danger"
                       size="sm"
-                      onClick={() => dispatch(removeItemFromCart(item.id))}
+                      onClick={() => handleDelete(item.id)}
                     >
                       Delete
                     </Button>
@@ -83,31 +89,20 @@ function Cart() {
             </tbody>
           </Table>
 
-          <div className="d-flex justify-content-between align-items-center mt-4">
-            <h4>Total: {totalPrice.toFixed(2)} $</h4>
+          <div className="cart-footer d-flex justify-content-between align-items-center mt-4">
+            <div>
+              <h4>Total: {totalPrice.toFixed(2)} $</h4>
+              <p className="text-muted total-note">
+                * Total price is before taxes and shipping fees.
+              </p>
+            </div>
             <Button variant="success" size="lg" style={{ minWidth: "150px" }}>
               Checkout
             </Button>
           </div>
 
-          {/* CSS Animation */}
-          <style>
-            {`
-              @keyframes fadeInUp {
-                from {
-                  opacity: 0;
-                  transform: translateY(10px);
-                }
-                to {
-                  opacity: 1;
-                  transform: translateY(0);
-                }
-              }
-              .table-row:hover {
-                background-color: #f1f9f1;
-              }
-            `}
-          </style>
+         
+          <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         </>
       )}
     </Container>
